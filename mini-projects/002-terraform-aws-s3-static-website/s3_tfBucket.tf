@@ -30,7 +30,6 @@ resource "aws_s3_bucket_website_configuration" "mybucket_static_website" {
   error_document {
     key = "error.html"
   }
-
 }
 
 
@@ -54,7 +53,7 @@ resource "aws_s3_bucket_policy" "mybucket_policy" {
   depends_on = [aws_s3_bucket.mybucket_website, aws_s3_bucket_public_access_block.mybucket_publicaccess]
 }
 
-
+## Uploading "_html" Files to S3 as BLOBS!!! 
 resource "aws_s3_object" "index_html" {
   bucket       = aws_s3_bucket.mybucket_website.id
   key          = "index.html"

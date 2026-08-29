@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Basic Calculator</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 50px 20px;
+        }
+
+        .calculator {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            background-color: peachpuff;
+            border: 2px solid black;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input {
+            width: 80%;
+            max-width: 350px;
+            padding: 10px;
+            margin: 8px 0 20px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .add {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .sub {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .mul {
+            background-color: #198754;
+            color: white;
+        }
+
+        .div {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        #result {
+            margin-top: 25px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        #error {
+            margin-top: 15px;
+            color: red;
+            font-weight: bold;
+        }
+
+        .privacy {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="calculator">
+
+        <h1>My Basic Calculator 🧮</h1>
+
+        <p>
+            <label for="value1">First Value</label>
+        </p>
+
+        <input
+            type="number"
+            id="value1"
+            step="any"
+            placeholder="Enter first value"
+        >
+
+        <p>
+            <label for="value2">Second Value</label>
+        </p>
+
+        <input
+            type="number"
+            id="value2"
+            step="any"
+            placeholder="Enter second value"
+        >
+
+        <div>
+            <button class="add" onclick="calculate('add')">add</button>
+            <button class="sub" onclick="calculate('sub')">sub</button>
+            <button class="mul" onclick="calculate('mul')">mul</button>
+            <button class="div" onclick="calculate('div')">div</button>
+        </div>
+
+        <div id="result"></div>
+
+        <div id="error"></div>
+
+        <div class="privacy">
+            <a href="Privacy.html">Privacy Policy</a>
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function calculate(operation) {
+
+            const value1Input = document.getElementById("value1");
+            const value2Input = document.getElementById("value2");
+
+            const value1 = Number(value1Input.value);
+            const value2 = Number(value2Input.value);
+
+            const resultElement = document.getElementById("result");
+            const errorElement = document.getElementById("error");
+
+            // Clear previous result/error
+            resultElement.innerHTML = "";
+            errorElement.innerHTML = "";
+
+            // Validate input
+            if (value1Input.value === "" || value2Input.value === "") {
+                errorElement.innerHTML = "Please enter both values.";
+                return;
+            }
+
+            let result;
+
+            switch (operation) {
+
+                case "add":
+                    result = value1 + value2;
+                    break;
+
+                case "sub":
+                    result = value1 - value2;
+                    break;
+
+                case "mul":
+                    result = value1 * value2;
+                    break;
+
+                case "div":
+
+                    if (value2 === 0) {
+                        errorElement.innerHTML = "Cannot divide by zero.";
+                        return;
+                    }
+
+                    result = value1 / value2;
+                    break;
+
+                default:
+                    errorElement.innerHTML = "Invalid operation.";
+                    return;
+            }
+
+            resultElement.innerHTML = "Result: " + result;
+        }
+
+    </script>
+
+</body>
+</html>
