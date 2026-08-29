@@ -1,40 +1,27 @@
+## Random IDs creation
+resource "random_id" "myrandom" {
+  byte_length = 4
 
-## Global TAGS
-locals {
-  tags = {
-    ProjectName = "002-terraform-aws-s3-static-website"
-    IaCUsed     = "Terraform"
-  }
-}
-
-## Generate RANDOM ids for my S3 Bucket Name
-resource "random_id" "my_random" {
-  byte_length = 5
 }
 
 
-## S3 Bucket
-resource "aws_s3_bucket" "my_s3" {
-  bucket = "mystore-${random_id.my_random.hex}"
-  tags = merge(local.tags, {
-    Name = "aws_bucket"
-  })
+## S3 Bucket Creation
+resource "aws_s3_bucket" "mybucket_website" {
+  bucket = "my-store-${random_id.myrandom.hex}"
 }
 
-
-## S3 Bucket Public Access
-resource "aws_s3_bucket_public_access_block" "myS3_public_access" {
-  bucket                  = aws_s3_bucket.my_s3.id
-  block_public_acls       = false
+resource "aws_s3_bucket_public_access_block" "mybucket_publicaccess" {
+  bucket                  = aws_s3_bucket.mybucket_website.id
   block_public_policy     = false
-  ignore_public_acls      = false
+  block_public_acls       = false
   restrict_public_buckets = false
+  ignore_public_acls      = false
 }
 
 
-## S3 Bucket Website Declaration
-resource "aws_s3_bucket_website_configuration" "mybucket_website" {
-  bucket = aws_s3_bucket.my_s3.id
+## S3 Website Configuration
+resource "aws_s3_bucket_website_configuration" "mybucket_static_website" {
+  bucket = aws_s3_bucket.mybucket_website.id
 
   index_document {
     suffix = "index.html"
@@ -48,45 +35,38 @@ resource "aws_s3_bucket_website_configuration" "mybucket_website" {
 
 ## S3 Policy Definition
 resource "aws_s3_bucket_policy" "mybucket_policy" {
-  bucket = aws_s3_bucket.my_s3.id
+  bucket = aws_s3_bucket.mybucket_website.id
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Sid       = "PublicReadGet"
-      Effect    = "Allow"
-      Principal = "*"
-      Action    = "S3:GetObject"
-      Resource  = "${aws_s3_bucket.my_s3.arn}/*"
-    }]
+    Statement = [
+      {
+        Sid       = "PublicReadGet"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "S3:GetObject"
+        Resource  = "${aws_s3_bucket.mybucket_website.arn}/*"
+      }
+    ]
   })
 
-  depends_on = [aws_s3_bucket.my_s3, aws_s3_bucket_public_access_block.myS3_public_access]
-
+  depends_on = [aws_s3_bucket.mybucket_website, aws_s3_bucket_public_access_block.mybucket_publicaccess]
 }
 
-
+## Uploading "_html" Files to S3 as BLOBS!!! 
 resource "aws_s3_object" "index_html" {
-  bucket       = aws_s3_bucket.my_s3.id
+  bucket       = aws_s3_bucket.mybucket_website.id
   key          = "index.html"
-  source       = "${path.module}/WebSite/index.html"
-  etag         = filemd5("${path.module}/WebSite/index.html")
-  content_type = "text/html"
+  source       = "build/index.html"
+  etag         = filemd5("build/index.html")
+  content_type = "text/index"
 }
 
 resource "aws_s3_object" "error_html" {
-  bucket       = aws_s3_bucket.my_s3.id
+  bucket       = aws_s3_bucket.mybucket_website.id
   key          = "error.html"
-  source       = "${path.module}/WebSite/error.html"
-  etag         = filemd5("${path.module}/WebSite/error.html")
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "privacy_html" {
-  bucket       = aws_s3_bucket.my_s3.id
-  key          = "privacy.html"
-  source       = "${path.module}/WebSite/privacy.html"
-  etag         = filemd5("${path.module}/WebSite/privacy.html")
-  content_type = "text/html"
+  source       = "build/error.html"
+  etag         = filemd5("build/error.html")
+  content_type = "text/error"
 }
 
