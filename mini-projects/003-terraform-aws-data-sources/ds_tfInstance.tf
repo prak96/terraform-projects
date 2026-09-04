@@ -1,14 +1,14 @@
 
-## Data Source to FETCH AMI ID for my Ubuntu server I am building
-data "aws_ami" "ubuntu_eu" {
+## Data Source to FETCH AMI ID for my WINDOWS server
+data "aws_ami" "winserv_eu" {
 
   most_recent = true
-  owners      = ["099720109477"]
-  provider    = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER 
+  owners      = ["amazon"]
+  provider    = aws.westeu    ### Explicitly calling "eu-west-1" REGIONAL PROVIDER 
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-*-22.04-amd64-server-*"]
+    values = ["Windows_Server-2022-English-Full-Base-*"]
   }
 
   filter {
@@ -16,7 +16,33 @@ data "aws_ami" "ubuntu_eu" {
     values = ["hvm"]
   }
 
+  filter {
+    name = "root-device-type"
+    values = [ "ebs" ]
+  }
 }
+
+
+
+
+## Data Source to FETCH AMI ID for my UBUNTU server
+# data "aws_ami" "ubuntu_eu" {
+
+#   most_recent = true
+#   owners      = ["099720109477"]
+#   provider    = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER 
+
+#   filter {
+#     name   = "name"
+#     values = ["ubuntu/images/hvm-ssd/ubuntu-*-22.04-amd64-server-*"]
+#   }
+
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+
+# }
 
 
 ## Data Source to FETCH REGION DETAILS in which Ubuntu server present
@@ -24,13 +50,15 @@ data "aws_caller_identity" "current" {}
 
 
 ## Data Source to FETCH REGION DETAILS in which Ubuntu server present
-data "aws_region" "current" {}
+data "aws_region" "current" {
+  provider = aws.westeu
+}
 
 
 ## Data Source to FETCH VPC DETAILS in which Ubuntu server present
 data "aws_vpc" "test_vpc" {
   tags = {
-    "Env" = "testenv"
+    "Env" = "TestEnv"
   }
   provider = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER 
 }
@@ -62,8 +90,8 @@ output "vpc_data_id" {
 
 
 ## The AMI is stored in this output
-output "ubuntu_ami_data_eu" {
-  value = data.aws_ami.ubuntu_eu.id
+output "winserv_ami_data_eu" {
+  value = data.aws_ami.winserv_eu.id
 }
 
 
@@ -74,9 +102,9 @@ output "azs" {
 
 
 
-## Ubuntu INSTANCE
-resource "aws_instance" "Ubuntu-VM" {
-  ami      = data.aws_ami.ubuntu_eu.id ### calling output-AMI of //data "aws_ami" "ubuntu_eu"//
+## Windows INSTANCE
+resource "aws_instance" "Win-VM" {
+  ami      = data.aws_ami.winserv_eu.id ### calling output-AMI of //data "aws_ami" "ubuntu_eu"//
   provider = aws.westeu                ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
 
   associate_public_ip_address = true
@@ -91,31 +119,31 @@ resource "aws_instance" "Ubuntu-VM" {
   vpc_security_group_ids = [aws_security_group.my_ds_sg.id]
 
 
-  #   ## Windows-VM USER LOGIN CREDENTIAL 
-  #   user_data = <<-EOF
-  #     <powershell>                                      ### For WINDOWS Instance CREDENTIAL definition
-  #     $username = "${var.windows_username}"
-  #     $password = "${var.windows_password}"
+    ## Windows-VM USER LOGIN CREDENTIAL 
+    user_data = <<-EOF
+      <powershell>                                      ### For WINDOWS Instance CREDENTIAL definition
+      $username = "${var.windows_username}"
+      $password = "${var.windows_password}"
 
-  #     New-LocalUser `
-  #         -Name $username `
-  #         -Password $password `
-  #         -FullName "WinServ-VM" `
-  #         -Description "Created WINDOWS user within WinServ-VM" `
-  #         -PasswordNeverExpires
+      New-LocalUser `
+          -Name $username `
+          -Password $password `
+          -FullName "WinServ-VM" `
+          -Description "Created WINDOWS user within WinServ-VM" `
+          -PasswordNeverExpires
 
-  #     Add-LocalGroupMember `
-  #       -Group "Administrators" `
-  #       -Member $username
+      Add-LocalGroupMember `
+        -Group "Administrators" `
+        -Member $username
 
-  #     Set-ItemProperty `
-  #       -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" `
-  #       -Name "fDenyTSConnections" `
-  #       -Value 0
+      Set-ItemProperty `
+        -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" `
+        -Name "fDenyTSConnections" `
+        -Value 0
 
-  #     Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-  #     </powershell>
-  # EOF
+      Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+      </powershell>
+  EOF
 
   user_data_replace_on_change = true
 
