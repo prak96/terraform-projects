@@ -1,10 +1,10 @@
 
 ## VARIABLES for WINDOWS Instance
 variable "windows_username" {
-    type = string
-    default = "RISHI"
+  type    = string
+  default = "RISHI"
 }
 variable "windows_password" {
-    type = string
-    sensitive = true
+  type      = string
+  sensitive = true
 }
