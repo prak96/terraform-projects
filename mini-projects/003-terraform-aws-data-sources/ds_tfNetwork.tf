@@ -8,7 +8,7 @@ locals {
 ## VPC
 resource "aws_vpc" "my_ds_vpc" {
   cidr_block = "192.168.0.0/16"
-  provider = aws.westeu
+  provider   = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
   tags = merge(local.tags, {
     "resource" = "my_ds_VPC"
   })
@@ -19,7 +19,7 @@ resource "aws_vpc" "my_ds_vpc" {
 resource "aws_subnet" "my_ds_subnet_public" {
   vpc_id     = aws_vpc.my_ds_vpc.id
   cidr_block = "192.168.2.0/24"
-  provider = aws.westeu
+  provider   = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
   tags = merge(local.tags, {
     "resources" = "my_ds_SUBNET_public"
   })
@@ -30,7 +30,7 @@ resource "aws_subnet" "my_ds_subnet_public" {
 resource "aws_subnet" "my_ds_subnet_private" {
   vpc_id     = aws_vpc.my_ds_vpc.id
   cidr_block = "192.168.1.0/24"
-  provider = aws.westeu
+  provider   = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
   tags = merge(local.tags, {
     "resources" = "my_ds_SUBNET_private"
   })
@@ -39,8 +39,8 @@ resource "aws_subnet" "my_ds_subnet_private" {
 
 ## Internet Gateway
 resource "aws_internet_gateway" "my_ds_igw" {
-  vpc_id = aws_vpc.my_ds_vpc.id
-  provider = aws.westeu
+  vpc_id   = aws_vpc.my_ds_vpc.id
+  provider = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
   tags = merge(local.tags, {
     "resource" = "my_ds_INTERNETGATEWAY"
   })
@@ -49,8 +49,8 @@ resource "aws_internet_gateway" "my_ds_igw" {
 
 ## Security Group
 resource "aws_security_group" "my_ds_sg" {
-  vpc_id = aws_vpc.my_ds_vpc.id
-  provider = aws.westeu
+  vpc_id   = aws_vpc.my_ds_vpc.id
+  provider = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
   tags = merge(local.tags, {
     "resource" = "my_ds_SECURITYGROUP"
   })
@@ -59,8 +59,8 @@ resource "aws_security_group" "my_ds_sg" {
 
 ## Security Group - INGRESS Rule
 resource "aws_vpc_security_group_ingress_rule" "ingress_http" {
-  provider = aws.westeu
-  ip_protocol       = "tcp"
+  provider    = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
+  ip_protocol = "tcp"
 
   security_group_id = aws_security_group.my_ds_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -75,8 +75,8 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_http" {
 
 ## Security Group - INGRESS Rule
 resource "aws_vpc_security_group_ingress_rule" "ingress_https" {
-  provider = aws.westeu
-  ip_protocol       = "tcp"
+  provider    = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
+  ip_protocol = "tcp"
 
   security_group_id = aws_security_group.my_ds_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -91,8 +91,8 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_https" {
 
 ## Security Group - INGRESS Rule
 resource "aws_vpc_security_group_ingress_rule" "ingress_ssh" {
-  provider = aws.westeu
-  ip_protocol       = "tcp"
+  provider    = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
+  ip_protocol = "tcp"
 
   security_group_id = aws_security_group.my_ds_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -107,9 +107,9 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_ssh" {
 
 ## Security Group - EGRESS Rule
 resource "aws_vpc_security_group_egress_rule" "INTERNET-AllOW" {
-  provider = aws.westeu
-  ip_protocol       = "-1" ### can reach any kind of port in any kind of IP Addresses
-  
+  provider    = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
+  ip_protocol = "-1"       ### can reach any kind of port in any kind of IP Addresses
+
   security_group_id = aws_security_group.my_ds_sg.id
   cidr_ipv4         = "0.0.0.0/0"
   description       = "INTERNET-ALLOW"
@@ -121,9 +121,9 @@ resource "aws_vpc_security_group_egress_rule" "INTERNET-AllOW" {
 
 ## Route Table
 resource "aws_route_table" "my_ds_rtb" {
-  vpc_id = aws_vpc.my_ds_vpc.id
-  provider = aws.westeu
-  
+  vpc_id   = aws_vpc.my_ds_vpc.id
+  provider = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
+
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.my_ds_igw.id
@@ -136,7 +136,7 @@ resource "aws_route_table" "my_ds_rtb" {
 
 ## Route Table Association
 resource "aws_route_table_association" "my_ds_rtb" {
-  provider = aws.westeu
+  provider       = aws.westeu ### Explicitly calling "eu-west-1" REGIONAL PROVIDER
   route_table_id = aws_route_table.my_ds_rtb.id
   subnet_id      = aws_subnet.my_ds_subnet_public.id
 }
