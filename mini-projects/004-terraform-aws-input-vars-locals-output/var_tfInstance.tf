@@ -1,14 +1,14 @@
 
-# Data Source to FETCH AMI ID for my Ubuntu server I am building
-data "aws_ami" "ubuntu_eu" {
+# Data Source to FETCH AMI ID for my WINDOWS server
+data "aws_ami" "winserv_ami_id" {
 
   most_recent = true
-  owners      = ["099720109477"]
-  # provider    = aws.eastus ### Explicitly calling "eu-west-1" REGIONAL PROVIDER 
+  owners      = ["amazon"]
+  provider    = aws.eastus ### Explicitly calling "us-east-1" REGIONAL PROVIDER 
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-*-22.04-amd64-server-*"]
+    values = ["Windows_Server-2022-English-Full-Base-*"]
   }
 
   filter {
@@ -16,20 +16,26 @@ data "aws_ami" "ubuntu_eu" {
     values = ["hvm"]
   }
 
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
 }
 
 
-resource "aws_instance" "var_ubuntuVM" {
-  ami      = data.aws_ami.ubuntu_eu.id
-  # provider = aws.eastus
+
+resource "aws_instance" "var_winVM" {
+  ami = data.aws_ami.winserv_ami_id.id
+
+  provider = aws.eastus
 
   associate_public_ip_address = true
-  instance_type               = "t2.micro"
+  instance_type               = var.ec2_instance_type_var ## Fetching from "ec2_instance" variables
   subnet_id                   = aws_subnet.var_frontSubnet.id
   root_block_device {
     delete_on_termination = true
-    volume_size           = 50
-    volume_type           = "gp3"
+    volume_size           = var.ec2_volume_size_var ## Fetching from "ec2_volume_size" variables
+    volume_type           = var.ec2_volume_type_var ## Fetching from "ec2_type_size" variables
   }
 
   vpc_security_group_ids = [aws_security_group.var_sg.id]
