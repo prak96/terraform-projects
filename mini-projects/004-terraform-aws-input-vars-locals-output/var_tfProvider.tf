@@ -9,15 +9,20 @@ terraform {
 }
 
 provider "aws" { ## Default Region
-  region = var.aws_region_list
+  region = "eu-east-1"
 }
 
-# provider "aws" {
-#   region = "eu-east-1"
-#   alias  = "easteu"
-# }
+provider "aws" {
+  region = "eu-east-1"
+  alias  = "easteu"
+}
 
-# provider "aws" {
-#   region = "us-east-1"
-#   alias  = "eastus"
+provider "aws" {
+  region = "us-east-1"
+  alias  = "eastus"
+}
+
+
+# provider "aws" { ## Default Region
+#   region = var.aws_region_list
 # }
